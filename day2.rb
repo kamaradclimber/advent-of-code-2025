@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-
 ranges = ARGV.shift.chomp.split(',').map do |s|
   s.split("-").map(&:to_i)
 end
@@ -26,21 +25,19 @@ def is_invalid2bis(id) # without regexp, slower
   end
 end
 
+def generate_invalids_part1(max)
+  max_size = Math.log10(max).to_i + 2
 
-invalid_ids_part1 = ranges.map do |range|
-  (range[0]..range[1]).to_a.select { |id| is_invalid(id) }.sum
+  (1..max_size).lazy.flat_map do |half_size|
+    (10**(half_size-1)...10**half_size).map { |half| half * 10**half_size + half }
+  end.take_while { |x| x <= max }
 end
 
-puts invalid_ids_part1.sum
+max = ranges.map(&:last).max
+puts generate_invalids_part1(max).select { |el| ranges.any? { |range| el >= range[0] && el <= range[1] } }.sum
 
 invalid_ids_part2 = ranges.map do |range|
-  (range[0]..range[1]).to_a.select { |id| is_invalid2(id) }.sum
+  (range[0]..range[1]).select { |id| is_invalid2(id) }.sum
 end
 
 puts invalid_ids_part2.sum
-
-invalid_ids_part2bis = ranges.map do |range|
-  (range[0]..range[1]).to_a.select { |id| is_invalid2bis(id) }.sum
-end
-
-puts invalid_ids_part2bis.sum
